@@ -1,22 +1,31 @@
 public class BenfordsLaw {
 
     public static int[] generateRandomNum(int min, int max){
-        int[] benfordArr = new int[1000];
-        for (int i = 0; i < benfordArr.length; i++){
-            benfordArr[i] = (int)(Math.random() * (max - min + 1)) + min;
+        int[] benfordArrRandom = new int[1000];
+        for (int i = 0; i < benfordArrRandom.length; i++){
+            benfordArrRandom[i] = (int)(Math.random() * (max - min + 1)) + min;
         }
-        return (benfordArr);
+        return (benfordArrRandom);
     }  
 
-    public static int getLeadingDigit(int num){
-        return ((num/100) % 10);
+    public static int[] generateExpNum(double factor, int size) {
+        int[] benfordArrExp = new int[size];
+        for (int i = 0; i < size; i++) {
+            benfordArrExp[i] = (int) Math.pow(factor, i);
+        }
+        return benfordArrExp;
     }
 
-    public static void benfordDistribution(){
+    public static int getLeadingDigit(int num){
+        while (num >= 10) {
+            num /= 10;
+        }
+        return num;
+    }
+
+    public static void benfordRandomDistribution(){
         int[] counter = new int [10];
         int[] proportions = new int[10];
-        String stars = "";
-        int numStars = 0;
 
         int[] benfordArr = generateRandomNum(100, 999); //Generate array with 1000 three digit numbers
 
@@ -31,14 +40,45 @@ public class BenfordsLaw {
             }
         }
 
+
         //Create proportions array based on values in counter array
         for (int i = 0; i < counter.length; i++){
-            proportions[i] = (int)(((double) counter[i] / 10.0));
+            proportions[i] = (int) Math.floor(((double) counter[i] / benfordArr.length) * 100);
+        }
+            printStarDist(proportions);
+    }
+
+    public static void benfordExpDistribution(double factor, int size){
+        int[] counter = new int [10];
+        int[] proportions = new int[10];
+
+        int[] benfordArr = generateExpNum(factor, size); //Generate array with (size) three digit numbers
+
+        //Create counter array
+        for (int i = 0; i < benfordArr.length;i++){
+            int hundredsDigit = getLeadingDigit(benfordArr[i]);
+
+            for (int j = 0; j < counter.length; j++){
+                if (j == hundredsDigit){
+                    counter[j]+=1;
+                }
+            }
         }
 
-        //Create string of stars distribution
-        for (int i = 0; i < proportions.length; i++){
-            numStars = (int)(proportions[i]/2);
+        //Create proportions array based on values in counter array
+        for (int i = 0; i < counter.length; i++){
+            proportions[i] = (int) Math.floor(((double) counter[i] / benfordArr.length) * 100);
+        }
+        printStarDist(proportions);
+    }
+
+    //Print string of stars distribution
+    public static void printStarDist(int[] benfordProportionsArr){
+        String stars = "";
+        int numStars = 0;
+
+        for (int i = 0; i < benfordProportionsArr.length; i++){
+            numStars = (int)(benfordProportionsArr[i]/2);
             for (int j = 0; j < numStars; j++ ){
                 if (j == 0){
                     stars += i + ": *";
@@ -49,13 +89,14 @@ public class BenfordsLaw {
                 }
             }
         }
-        System.out.println ("Benford Distribution for Dataset in Stars (Key: 1 star = 2%, rounded down):");
+        System.out.println ("Benford Distribution for Dataset in Stars (Key: 1 star = 2%, rounded up):");
         System.out.println(stars);
+    }
 
-        }
 
     public static void main(String[] args) {
-            benfordDistribution();
+        benfordRandomDistribution();
+        benfordExpDistribution(1.1, 200);
     }
 
 }
